@@ -22,6 +22,10 @@ type WeatherInfo struct {
 	} `json:"main"`
 }
 
+func kelvinToCelsius(kelvin float64) float64 {
+	return kelvin - 273.15
+}
+
 func getTorontoWeather() (*WeatherInfo, error) {
 	resp, err := http.Get(weatherAPIURL)
 	if err != nil {
@@ -39,6 +43,10 @@ func getTorontoWeather() (*WeatherInfo, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// Convert temperatures to Celsius
+	weatherInfo.Main.Temp = kelvinToCelsius(weatherInfo.Main.Temp)
+	weatherInfo.Main.FeelsLike = kelvinToCelsius(weatherInfo.Main.FeelsLike)
 
 	return &weatherInfo, nil
 }
@@ -62,8 +70,6 @@ func torontoWeatherHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Humidity: %d%%\n", humidity)
 	fmt.Fprintf(w, "Wind Speed: %.2f m/s\n", windSpeed)
 	fmt.Fprintf(w, "Description: %s\n", description)
-
-	fmt.Fprintf(w, "Temperature in Toronto: %.2f°C", temperature)
 }
 
 func main() {
